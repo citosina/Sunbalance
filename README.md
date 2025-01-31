@@ -93,8 +93,6 @@ Want to contribute? Follow these steps:
 4️⃣ Push to GitHub (git push origin feature-new-feature)
 5️⃣ Open a Pull Request
 
-📜 License
-This project is MIT Licensed.
 
 🌍 Contact
 👩‍💻 Created by: @citosina
