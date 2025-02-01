@@ -43,28 +43,37 @@
 ### **1️⃣ Clone the Repository**
 
 git clone https://github.com/citosina/SunBalance.git
+
 cd SunBalance
 
 ### **2️⃣ Set Up the Virtual Environment** 
 
 python -m venv venv
+
 source venv/bin/activate  # Mac/Linux
+
 venv\Scripts\activate     # Windows
 
 ### **3️⃣ Install Dependencies**
 
 pip install -r requirements.txt
+
 ### **4️⃣ Set Up Environment Variables**
+
 Create a .env file inside the project and add:
 
 SECRET_KEY=your-secret-key  
+
 DEBUG=True  
+
 DATABASE_URL=your-database-url  
+
 OPENUV_API_KEY=your-openuv-api-key  
 
 ### **5️⃣ Apply Migrations & Start the Server**
 
 python manage.py migrate
+
 python manage.py runserver
 
 ## 🔗 API Endpoints
@@ -74,12 +83,16 @@ python manage.py runserver
 ## 🔐 Authentication
 
 Method	Endpoint	Description
+
 POST	/api/register/	Register a new user
+
 POST	/api/login/	Authenticate and get JWT token
 
 ## ☀️ UV Data & Sun Exposure
 Method	Endpoint	Description
+
 GET	/api/smart_location_uv_index/	Get UV index (GPS/IP-based)
+
 POST	/api/sun_exposure/	Log sun exposure
 
 📌 More API details available in the documentation.
