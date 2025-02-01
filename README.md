@@ -41,51 +41,47 @@
 ## 📦 Installation & Setup
 
 ### **1️⃣ Clone the Repository**
-```sh
 git clone https://github.com/citosina/SunBalance.git
 cd SunBalance
-2️⃣ Set Up the Virtual Environment
-sh
-Copy
-Edit
+
+### **2️⃣ Set Up the Virtual Environment** 
 python -m venv venv
 source venv/bin/activate  # Mac/Linux
 venv\Scripts\activate     # Windows
-3️⃣ Install Dependencies
-sh
-Copy
-Edit
+
+### **3️⃣ Install Dependencies**
+
 pip install -r requirements.txt
-4️⃣ Set Up Environment Variables
+### **4️⃣ Set Up Environment Variables**
 Create a .env file inside the project and add:
 
-ini
-Copy
-Edit
 SECRET_KEY=your-secret-key  
 DEBUG=True  
 DATABASE_URL=your-database-url  
 OPENUV_API_KEY=your-openuv-api-key  
-5️⃣ Apply Migrations & Start the Server
-sh
-Copy
-Edit
+
+### **5️⃣ Apply Migrations & Start the Server**
+
 python manage.py migrate
 python manage.py runserver
-🔗 API Endpoints
+
+##🔗 API Endpoints
 📌 Base URL: http://127.0.0.1:8000/api/
 
-🔐 Authentication
+## 🔐 Authentication
+
 Method	Endpoint	Description
 POST	/api/register/	Register a new user
 POST	/api/login/	Authenticate and get JWT token
-☀️ UV Data & Sun Exposure
+
+## ☀️ UV Data & Sun Exposure
 Method	Endpoint	Description
 GET	/api/smart_location_uv_index/	Get UV index (GPS/IP-based)
 POST	/api/sun_exposure/	Log sun exposure
+
 📌 More API details available in the documentation.
 
-🔧 Contributing
+## 🔧 Contributing
 Want to contribute? Follow these steps:
 1️⃣ Fork the repository
 2️⃣ Create a feature branch (git checkout -b feature-new-feature)
@@ -94,7 +90,7 @@ Want to contribute? Follow these steps:
 5️⃣ Open a Pull Request
 
 
-🌍 Contact
+## 🌍 Contact
 👩‍💻 Created by: @citosina
 📧 Email: citosina@icloud.com
 🚀 Follow on Twitter: @citosina
