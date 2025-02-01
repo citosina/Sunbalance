@@ -41,10 +41,12 @@
 ## 📦 Installation & Setup
 
 ### **1️⃣ Clone the Repository**
+
 git clone https://github.com/citosina/SunBalance.git
 cd SunBalance
 
 ### **2️⃣ Set Up the Virtual Environment** 
+
 python -m venv venv
 source venv/bin/activate  # Mac/Linux
 venv\Scripts\activate     # Windows
@@ -65,7 +67,8 @@ OPENUV_API_KEY=your-openuv-api-key
 python manage.py migrate
 python manage.py runserver
 
-##🔗 API Endpoints
+## 🔗 API Endpoints
+
 📌 Base URL: http://127.0.0.1:8000/api/
 
 ## 🔐 Authentication
@@ -83,10 +86,15 @@ POST	/api/sun_exposure/	Log sun exposure
 
 ## 🔧 Contributing
 Want to contribute? Follow these steps:
+
 1️⃣ Fork the repository
+
 2️⃣ Create a feature branch (git checkout -b feature-new-feature)
+
 3️⃣ Commit changes (git commit -m "Added new feature")
+
 4️⃣ Push to GitHub (git push origin feature-new-feature)
+
 5️⃣ Open a Pull Request
 
 
