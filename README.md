@@ -134,19 +134,25 @@ You can create an administrative superuser if you plan to use the Django admin:
 python manage.py createsuperuser
 ```
 
-### Run the API
+Create a `.env` file inside the project and add the required variables:
 
-```bash
-python manage.py runserver
-```
+SECRET_KEY=your-secret-key
 
-The development server starts at <http://127.0.0.1:8000/>. API endpoints live under
-`http://127.0.0.1:8000/api/`.
+DEBUG=True
 
-## API Overview
+DATABASE_URL=your-database-url
 
-All endpoints return JSON. Unless noted otherwise, they require a valid JWT access token in the
-`Authorization: Bearer <token>` header.
+OPENUV_API_KEY=your-openuv-api-key
+
+You can also tweak optional settings used by the service helpers:
+
+OPENUV_URL_TEMPLATE=https://api.openuv.io/api/v1/uv?lat={lat}&lng={lon}
+
+IP_GEOLOCATION_URL=https://ipapi.co/json/
+
+VITAMIN_D_BASELINE_MINUTES=15
+
+VITAMIN_D_BASELINE_UV_INDEX=3.0
 
 ### Authentication
 
@@ -169,31 +175,22 @@ Content-Type: application/json
 
 **Successful response**
 
-```json
-{
-  "refresh": "<refresh_token>",
-  "access": "<access_token>"
-}
-```
+| Method | Endpoint         | Description                      |
+| ------ | ---------------- | -------------------------------- |
+| POST   | `/api/register/` | Register a new user              |
+| POST   | `/api/login/`    | Authenticate and get a JWT token |
 
-### Sun Exposure Endpoints
+## ☀️ UV Data & Sun Exposure
+| Method | Endpoint                             | Description |
+| ------ | ------------------------------------ | ----------- |
+| GET    | `/api/smart_location_uv_index/`      | Get UV index (GPS/IP-based fallback) |
+| GET    | `/api/uv_index/<lat>/<lon>/`         | Get UV index for explicit coordinates |
+| GET    | `/api/sun_exposure/`                 | List the authenticated user's entries |
+| POST   | `/api/sun_exposure/`                 | Log sun exposure (vitamin D is auto-calculated) |
+| GET    | `/api/sun_exposure/summary/`         | View aggregated exposure insights |
 
-| Method | Endpoint              | Description                                         |
-|--------|----------------------|-----------------------------------------------------|
-| GET    | `/api/sun_exposure/` | List the authenticated user's sun exposure entries. |
-| POST   | `/api/sun_exposure/` | Create a new exposure entry (auto-attached to user). |
-
-**POST payload**
-
-```json
-{
-  "duration_minutes": 35,
-  "uv_index": 5.2,
-  "vitamin_d_produced": 800
-}
-```
-
-### UV Index Endpoints
+> ℹ️ Only `duration_minutes` and `uv_index` are required when logging an
+> exposure—the API estimates vitamin D production automatically.
 
 | Method | Endpoint                                   | Description |
 |--------|--------------------------------------------|-------------|
