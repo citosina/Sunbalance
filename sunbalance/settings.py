@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -150,4 +151,15 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
+
+
+# External service configuration
+OPENUV_API_KEY = os.getenv("OPENUV_API_KEY", "")
+OPENUV_URL_TEMPLATE = os.getenv(
+    "OPENUV_URL_TEMPLATE",
+    "https://api.openuv.io/api/v1/uv?lat={lat}&lng={lon}",
+)
+IP_GEOLOCATION_URL = os.getenv("IP_GEOLOCATION_URL", "https://ipapi.co/json/")
+VITAMIN_D_BASELINE_MINUTES = int(os.getenv("VITAMIN_D_BASELINE_MINUTES", 15))
+VITAMIN_D_BASELINE_UV_INDEX = float(os.getenv("VITAMIN_D_BASELINE_UV_INDEX", 3.0))
 

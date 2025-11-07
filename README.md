@@ -82,18 +82,22 @@ python manage.py runserver
 
 ## 🔐 Authentication
 
-Method	Endpoint	Description
-
-POST	/api/register/	Register a new user
-
-POST	/api/login/	Authenticate and get JWT token
+| Method | Endpoint         | Description                      |
+| ------ | ---------------- | -------------------------------- |
+| POST   | `/api/register/` | Register a new user              |
+| POST   | `/api/login/`    | Authenticate and get a JWT token |
 
 ## ☀️ UV Data & Sun Exposure
-Method	Endpoint	Description
+| Method | Endpoint                             | Description |
+| ------ | ------------------------------------ | ----------- |
+| GET    | `/api/smart_location_uv_index/`      | Get UV index (GPS/IP-based fallback) |
+| GET    | `/api/uv_index/<lat>/<lon>/`         | Get UV index for explicit coordinates |
+| GET    | `/api/sun_exposure/`                 | List the authenticated user's entries |
+| POST   | `/api/sun_exposure/`                 | Log sun exposure (vitamin D is auto-calculated) |
+| GET    | `/api/sun_exposure/summary/`         | View aggregated exposure insights |
 
-GET	/api/smart_location_uv_index/	Get UV index (GPS/IP-based)
-
-POST	/api/sun_exposure/	Log sun exposure
+> ℹ️ Only `duration_minutes` and `uv_index` are required when logging an
+> exposure—the API estimates vitamin D production automatically.
 
 📌 More API details available in the documentation.
 
