@@ -60,15 +60,25 @@ pip install -r requirements.txt
 
 ### **4️⃣ Set Up Environment Variables**
 
-Create a .env file inside the project and add:
+Create a `.env` file inside the project and add the required variables:
 
-SECRET_KEY=your-secret-key  
+SECRET_KEY=your-secret-key
 
-DEBUG=True  
+DEBUG=True
 
-DATABASE_URL=your-database-url  
+DATABASE_URL=your-database-url
 
-OPENUV_API_KEY=your-openuv-api-key  
+OPENUV_API_KEY=your-openuv-api-key
+
+You can also tweak optional settings used by the service helpers:
+
+OPENUV_URL_TEMPLATE=https://api.openuv.io/api/v1/uv?lat={lat}&lng={lon}
+
+IP_GEOLOCATION_URL=https://ipapi.co/json/
+
+VITAMIN_D_BASELINE_MINUTES=15
+
+VITAMIN_D_BASELINE_UV_INDEX=3.0
 
 ### **5️⃣ Apply Migrations & Start the Server**
 
