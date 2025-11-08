@@ -1,246 +1,139 @@
 # 🌞 SunBalance
 
-[![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
-[![DRF](https://img.shields.io/badge/DRF-3.x-FF1709?logo=django&logoColor=white)](https://www.django-rest-framework.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+SunBalance is a “sun & vitamin D co-pilot” for families. It combines a modular Django backend with a Vue 3 single-page app to surface conservative, friendly recommendations about when to go outside and for how long.
 
-SunBalance is a Django REST API that helps people manage healthy sun exposure. The service
-combines location awareness, real-time UV index lookups (via the OpenUV platform), and simple
-analytics so that users can make informed decisions about spending time outdoors while tracking
-their vitamin D production.
+> **Safety reminder:** SunBalance only provides general, conservative guidance. It is not medical advice. Always follow the instructions of your healthcare professionals, especially for children or if you have skin or health conditions.
 
-> **Why SunBalance?** Excessive sun exposure is risky, yet sunlight is the primary natural source of
-> vitamin D. SunBalance gives users a data-driven, privacy-conscious way to balance those
-> considerations.
+## Features
 
----
+- **Onboarding wizard** – Capture home location, skin type, preferred time windows, and family members in a few guided steps.
+- **Profile management** – Update the household defaults and tweak profiles for kids or dependents.
+- **Today’s plan** – One-tap status card showing current UV, recommended exposure range, trend for the next hours, and safety callouts.
+- **Recommendation engine** – Pure Python heuristics that err on the side of caution by factoring skin type, age group, altitude, sunscreen, and clothing coverage.
+- **UV service wrapper** – Cached, fault-tolerant integration with external UV APIs. If the provider fails, SunBalance returns a conservative fallback and flags data quality.
+- **Modern frontend** – Vue 3 (Composition API) + Pinia + Vite with responsive styling and a reusable component library.
+- **Automated tests** – Django unit tests for critical logic plus Vitest coverage for the Sun card UI component.
 
-## Table of Contents
-
-1. [Key Features](#key-features)
-2. [System Architecture](#system-architecture)
-3. [Project Structure](#project-structure)
-4. [Getting Started](#getting-started)
-   - [Prerequisites](#prerequisites)
-   - [Installation](#installation)
-   - [Environment Configuration](#environment-configuration)
-   - [Database Migrations](#database-migrations)
-   - [Run the API](#run-the-api)
-5. [API Overview](#api-overview)
-   - [Authentication](#authentication)
-   - [Sun Exposure Endpoints](#sun-exposure-endpoints)
-   - [UV Index Endpoints](#uv-index-endpoints)
-6. [Data Model](#data-model)
-7. [Testing](#testing)
-8. [Development Tips](#development-tips)
-9. [Contributing](#contributing)
-10. [License](#license)
-
----
-
-## Key Features
-
-- **JWT-secured REST API** – JSON Web Tokens provided by SimpleJWT secure every request after login.
-- **Sun exposure tracking** – Persist daily exposure logs, including UV index and estimated vitamin D.
-- **Smart UV lookups** – Fetch UV data for explicit GPS coordinates or fall back to coarse IP-based
-  geolocation using `geocoder` and the OpenUV API.
-- **Future-ready frontend** – Designed to back both web and native clients via clean, documented
-  endpoints.
-- **CORS enabled** – Ready to be consumed by JavaScript single-page applications out of the box.
-
-## System Architecture
-
-```text
-┌────────────┐      ┌────────────────┐      ┌─────────────┐
-│  Frontend  │ ---> │  SunBalance    │ ---> │  OpenUV API │
-│ (React,    │ REST │  Django + DRF  │ HTTP │  (external) │
-│  React Nat.)│     │  JWT security  │      │             │
-└────────────┘      └────────────────┘      └─────────────┘
-```
-
-- **Django 4.2** powers the core application, including authentication and ORM.
-- **Django REST Framework** exposes the JSON API.
-- **SimpleJWT** issues access and refresh tokens with configurable lifetimes.
-- **SQLite** is the default development database (swap to PostgreSQL or another RDBMS for production).
-
-## Project Structure
+## Project structure
 
 ```text
 Sunbalance/
-├── api/                 # Django app that exposes REST endpoints
-│   ├── models.py        # Sun exposure domain models
-│   ├── serializers.py   # API serializers for DRF
-│   ├── urls.py          # Endpoint routing
-│   └── views.py         # Business logic + integrations
-├── sunbalance/          # Project configuration (settings, URLs, WSGI/ASGI)
-├── manage.py            # Django utility entry point
-├── requirements.txt     # (Create this from your virtualenv if missing)
-└── README.md
+├── accounts/              # Registration + JWT helpers
+├── profiles/              # Household preferences and per-person profiles
+├── sun_engine/            # Recommendation heuristics + API endpoint
+├── uv_api/                # External UV service wrapper with caching
+├── api/                   # Aggregated API routing
+├── frontend/              # Vite + Vue 3 SPA (mobile-first)
+├── sunbalance/            # Django project settings and URLs
+├── manage.py
+└── requirements.txt
 ```
 
-> **Note:** The repository currently ships with a local SQLite database (`db.sqlite3`) for convenience.
-> Remove it before committing to production environments.
+## Backend setup (Django + DRF)
 
-## Getting Started
-
-### Prerequisites
-
-- Python **3.10+**
-- pip and `virtualenv`
-- An [OpenUV API key](https://www.openuv.io/)
-
-### Installation
+### 1. Install dependencies
 
 ```bash
-# Clone the repository
-git clone https://github.com/citosina/SunBalance.git
-cd SunBalance
-
-# (Optional) create a virtual environment
 python -m venv venv
-source venv/bin/activate       # macOS/Linux
-# .\venv\Scripts\activate     # Windows PowerShell
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-If `requirements.txt` is not yet generated, create one from the active environment with
-`pip freeze > requirements.txt` once dependencies are installed.
+### 2. Configure environment variables
 
-### Environment Configuration
+Copy the provided example and adjust values for your environment:
 
-Create a `.env` file (or define environment variables) with the following settings:
-
-```dotenv
-DJANGO_SECRET_KEY=your-django-secret
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-OPENUV_API_KEY=your-openuv-token
+```bash
+cp .env.example .env
 ```
 
-Update `sunbalance/settings.py` to consume these variables, or export them before running the
-server. Never check real secrets into version control.
+`.env` values that matter:
 
-### Database Migrations
+- `SECRET_KEY` – Django secret key
+- `DEBUG` – `True` for local development only
+- `ALLOWED_HOSTS` – Comma-separated list of hosts
+- `UV_API_KEY` – API key for OpenUV (or another compatible provider)
+- `UV_API_BASE_URL` – Endpoint template (defaults to OpenUV’s UV endpoint)
+- `ACCESS_TOKEN_MINUTES` / `REFRESH_TOKEN_DAYS` – SimpleJWT lifetimes
+
+### 3. Run migrations and start the server
 
 ```bash
 python manage.py migrate
+python manage.py runserver
 ```
 
-You can create an administrative superuser if you plan to use the Django admin:
+The backend exposes JSON endpoints under `http://localhost:8000/api/`.
+
+### 4. Available endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/register/` | POST | Register a new account |
+| `/api/auth/token/` | POST | Obtain JWT access & refresh tokens |
+| `/api/auth/token/refresh/` | POST | Refresh access token |
+| `/api/profiles/user/` | GET/PATCH | Household defaults |
+| `/api/profiles/items/` | CRUD | Manage personal profiles |
+| `/api/recommendation/today/?profile_id=…` | GET | Current-day sun plan for the selected profile |
+
+Responses include a `disclaimer` field reiterating that the output is not medical advice.
+
+## Frontend setup (Vue 3 + Vite)
+
+### 1. Install dependencies
 
 ```bash
-python manage.py createsuperuser
+cd frontend
+npm install
 ```
 
-Create a `.env` file inside the project and add the required variables:
+### 2. Environment variables
 
-SECRET_KEY=your-secret-key
-
-DEBUG=True
-
-DATABASE_URL=your-database-url
-
-OPENUV_API_KEY=your-openuv-api-key
-
-You can also tweak optional settings used by the service helpers:
-
-OPENUV_URL_TEMPLATE=https://api.openuv.io/api/v1/uv?lat={lat}&lng={lon}
-
-IP_GEOLOCATION_URL=https://ipapi.co/json/
-
-VITAMIN_D_BASELINE_MINUTES=15
-
-VITAMIN_D_BASELINE_UV_INDEX=3.0
-
-### Authentication
-
-| Method | Endpoint        | Description                 |
-|--------|-----------------|-----------------------------|
-| POST   | `/api/register/` | Create a new user account.  |
-| POST   | `/api/login/`    | Obtain JWT access & refresh tokens. |
-
-**Example login request**
-
-```http
-POST /api/login/
-Content-Type: application/json
-
-{
-  "username": "demo",
-  "password": "correct-horse-battery-staple"
-}
-```
-
-**Successful response**
-
-| Method | Endpoint         | Description                      |
-| ------ | ---------------- | -------------------------------- |
-| POST   | `/api/register/` | Register a new user              |
-| POST   | `/api/login/`    | Authenticate and get a JWT token |
-
-## ☀️ UV Data & Sun Exposure
-| Method | Endpoint                             | Description |
-| ------ | ------------------------------------ | ----------- |
-| GET    | `/api/smart_location_uv_index/`      | Get UV index (GPS/IP-based fallback) |
-| GET    | `/api/uv_index/<lat>/<lon>/`         | Get UV index for explicit coordinates |
-| GET    | `/api/sun_exposure/`                 | List the authenticated user's entries |
-| POST   | `/api/sun_exposure/`                 | Log sun exposure (vitamin D is auto-calculated) |
-| GET    | `/api/sun_exposure/summary/`         | View aggregated exposure insights |
-
-> ℹ️ Only `duration_minutes` and `uv_index` are required when logging an
-> exposure—the API estimates vitamin D production automatically.
-
-| Method | Endpoint                                   | Description |
-|--------|--------------------------------------------|-------------|
-| GET    | `/api/uv_index/<lat>/<lon>/`               | Fetch UV data for explicit coordinates. |
-| GET    | `/api/smart_location_uv_index/?lat=&lon=`  | Use provided GPS coords or fall back to IP geolocation. |
-
-> The smart endpoint defaults to IP-based lookup (via `geocoder.ip("me")`) if latitude and longitude
-> are omitted. Make sure outbound HTTP requests are permitted in your environment.
-
-## Data Model
-
-`SunExposure` records are associated with Django `User` accounts.
-
-| Field              | Type        | Notes                               |
-|--------------------|-------------|-------------------------------------|
-| `user`             | FK → User   | Automatically set to the requester. |
-| `date`             | Date        | Defaults to creation date.          |
-| `duration_minutes` | Integer     | Sun exposure duration.              |
-| `uv_index`         | Float       | UV index recorded for the session.  |
-| `vitamin_d_produced` | Float     | Estimated vitamin D production (IU).|
-
-## Testing
-
-Run the Django test suite:
+Create `frontend/.env` based on `frontend/.env.example` and point `VITE_API_BASE_URL` to your backend:
 
 ```bash
-python manage.py test
+cp frontend/.env.example frontend/.env
 ```
 
-Add unit tests under `api/tests.py` to cover endpoints, authentication, and integrations.
+### 3. Run locally
 
-## Development Tips
+```bash
+npm run dev
+```
 
-- Enable logging for external API calls when debugging OpenUV responses.
-- Replace the placeholder OpenUV token in `api/views.py` with the `OPENUV_API_KEY` environment
-  variable before deploying.
-- Configure [Django CORS Headers](https://pypi.org/project/django-cors-headers/) with explicit
-  origins in production environments instead of `CORS_ALLOW_ALL_ORIGINS = True`.
-- Switch `DEBUG` to `False`, define `ALLOWED_HOSTS`, and move secrets to a secure store before
-  shipping to production.
+The SPA is served at `http://localhost:5173`. It expects the Django API at `http://localhost:8000/api` by default.
+
+### 4. Tests
+
+- Backend: `python manage.py test`
+- Frontend: `cd frontend && npm run test -- --run`
+
+## Recommendation heuristics (quick overview)
+
+The core logic lives in `sun_engine/recommendations.py` and follows these principles:
+
+1. Estimate time to minimal erythema dose (MED) per skin type and current UV index.
+2. Apply multipliers for age group (children and toddlers get smaller windows) and altitude.
+3. Adjust effective UV for clothing coverage, hats, sunscreen, and cloud cover.
+4. Apply a safety factor so the recommended window remains below the theoretical MED.
+5. Clamp results to conservative limits (e.g., maximum 45 minutes for moderate UV, max 10 minutes for extreme UV).
+6. Return structured statuses (`good_now`, `caution_now`, `avoid_now`, `low_uv`) plus warnings and suggested time windows.
+
+The heuristics are intentionally simple and well-documented so they can be refined with domain expert input later.
+
+## Tooling & DX
+
+- **Formatting** – Use Black + isort for Python (`pip install black isort`) and leverage Prettier/ESLint if you extend the frontend tooling.
+- **Caching** – UV responses are cached for 10 minutes via Django’s local memory cache to avoid hammering external APIs.
+- **Signals** – New users automatically get a default `UserProfile` and `SunProfile` so onboarding can just update values.
 
 ## Contributing
 
-Contributions are welcome! Please:
-
 1. Fork the repository.
-2. Create a feature branch: `git checkout -b feat/your-feature`.
-3. Add or update tests when applicable.
-4. Submit a pull request describing your changes.
+2. Create a feature branch.
+3. Ensure backend and frontend tests pass.
+4. Submit a pull request with context on the change.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is released under the [MIT License](LICENSE).

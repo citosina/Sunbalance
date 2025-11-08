@@ -1,27 +1,9 @@
+"""Aggregate API routes for the SunBalance backend."""
 
-
-from django.urls import path
-
-from .views import (
-    LoginUser,
-    RegisterUser,
-    SmartLocationUVIndexView,
-    SunExposureListCreate,
-    SunExposureSummaryView,
-    UVIndexView,
-)
-
+from django.urls import include, path
 
 urlpatterns = [
-    path("register/", RegisterUser.as_view(), name="register"),
-    path("login/", LoginUser.as_view(), name="login"),
-    path("sun_exposure/", SunExposureListCreate.as_view(), name="sun_exposure"),
-    path("sun_exposure/summary/", SunExposureSummaryView.as_view(), name="sun_exposure_summary"),
-    path("uv_index/<str:latitude>/<str:longitude>/", UVIndexView.as_view(), name="uv_index"),
-    path(
-        "smart_location_uv_index/",
-        SmartLocationUVIndexView.as_view(),
-        name="smart_location_uv_index",
-    ),
+    path("auth/", include("accounts.urls")),
+    path("profiles/", include("profiles.urls")),
+    path("recommendation/", include("sun_engine.urls")),
 ]
-
