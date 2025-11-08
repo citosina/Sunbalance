@@ -38,21 +38,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
- 
-# Third-party apps
+
+    # Third-party apps
     'rest_framework',
     'corsheaders',
-    'rest_framework_simplejwt',
 
-# Custom Apps
+    # Domain apps
+    'accounts',
+    'profiles',
+    'uv_api',
+    'sun_engine',
     'api',
-
-
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
@@ -67,6 +71,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # Allow frontend to access the API
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "sunbalance-cache",
+    }
+}
 
 
 ROOT_URLCONF = 'sunbalance.urls'
@@ -146,20 +157,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # Tokens now last 1 day
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Refresh tokens last 7 days
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.getenv("ACCESS_TOKEN_MINUTES", "60"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv("REFRESH_TOKEN_DAYS", "7"))),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
 
 
 # External service configuration
-OPENUV_API_KEY = os.getenv("OPENUV_API_KEY", "")
-OPENUV_URL_TEMPLATE = os.getenv(
-    "OPENUV_URL_TEMPLATE",
-    "https://api.openuv.io/api/v1/uv?lat={lat}&lng={lon}",
+UV_API_KEY = os.getenv("UV_API_KEY", os.getenv("OPENUV_API_KEY", ""))
+UV_API_BASE_URL = os.getenv(
+    "UV_API_BASE_URL",
+    os.getenv("OPENUV_URL_TEMPLATE", "https://api.openuv.io/api/v1/uv?lat={lat}&lng={lon}"),
 )
-IP_GEOLOCATION_URL = os.getenv("IP_GEOLOCATION_URL", "https://ipapi.co/json/")
-VITAMIN_D_BASELINE_MINUTES = int(os.getenv("VITAMIN_D_BASELINE_MINUTES", 15))
-VITAMIN_D_BASELINE_UV_INDEX = float(os.getenv("VITAMIN_D_BASELINE_UV_INDEX", 3.0))
 
